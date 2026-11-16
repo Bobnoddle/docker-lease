@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+._*
+.AppleDouble
+
+# editor / tooling leftovers
+*.bak
+*.orig
+*.rej
+*.swp
+*~
+.idea/
+.vscode/
+
+# notifier build outputs
+build/
+dist/
+out/
+*.dSYM/
+*.xcuserstate
+
+# local runtime state (never committed)
+.docker-leases/
