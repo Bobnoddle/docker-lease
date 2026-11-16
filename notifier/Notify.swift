@@ -1,4 +1,4 @@
-// Notify.swift — tiny notification helper for docker-lease.
+// Notify.swift: tiny notification helper for docker-lease.
 //
 // Why this exists: `osascript -e 'display notification ...'` has no app icon,
 // so docker-lease notifications show up with the generic script icon. Posting

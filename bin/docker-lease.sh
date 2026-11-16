@@ -1,5 +1,5 @@
 #!/bin/bash
-# docker-lease.sh — lease + activity based reaper for local dev stacks.
+# docker-lease.sh: lease + activity based reaper for local dev stacks.
 #
 # WHY: agents and CI harnesses run `docker compose up -d` in throwaway
 # workspaces. Nothing runs `compose down` on teardown, and scaffolded services

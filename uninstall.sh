@@ -1,5 +1,5 @@
 #!/bin/bash
-# uninstall.sh — remove docker-lease from the current user.
+# uninstall.sh: remove docker-lease from the current user.
 #
 # Removes the launchd agent, the script, the notification helper and the env
 # block install.sh added to your shell profile. Leaves Docker alone: no
