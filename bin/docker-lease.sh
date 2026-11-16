@@ -62,10 +62,6 @@ STOP_MIN="${DOCKER_STOP_MIN:-30}"
 DELETE_HRS="${DOCKER_DELETE_HOURS:-24}"
 GRACE_SECS="${DOCKER_REAP_GRACE:-600}"
 
-# If any of these resource-delta gates are zero AND the lease is older than
-# FAST_STOP_MIN, use the tighter window. A working stack vetoes itself.
-FAST_STOP_MIN="${DOCKER_FAST_STOP_MIN:-10}"
-
 # Where install writes the launchd agent's ProgramArguments. Resolved so the
 # agent works regardless of how the script was invoked, with no hardcoded
 # home directory.
@@ -241,8 +237,8 @@ cmd_status() {
       "$proj" "$owner" "$([ -n "$running" ] && echo yes || echo no)" "$pin" "$idl" "$since" "$state"
   done
   echo
-  echo "stop after ${STOP_MIN}m idle (or ${FAST_STOP_MIN}m if zero activity) | delete containers after ${DELETE_HRS}h | volumes never deleted"
-  echo "config: DOCKER_STOP_MIN  DOCKER_DELETE_HOURS  DOCKER_FAST_STOP_MIN  DOCKER_REAP_GRACE"
+  echo "stop after ${STOP_MIN}m idle | delete containers after ${DELETE_HRS}h | volumes never deleted"
+  echo "config: DOCKER_STOP_MIN  DOCKER_DELETE_HOURS  DOCKER_REAP_GRACE"
 }
 
 cmd_reap() {

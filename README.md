@@ -173,7 +173,6 @@ Every knob is an env var, read at each launchd pass:
 | `DOCKER_STOP_MIN` | `30` | idle minutes before stop |
 | `DOCKER_DELETE_HOURS` | `24` | hours before deletion |
 | `DOCKER_REAP_GRACE` | `600` | seconds between the two `ORPHAN` sightings |
-| `DOCKER_FAST_STOP_MIN` | `10` | shown by `status`; the reap loop decides on `DOCKER_STOP_MIN` only |
 | `DOCKER` | `command -v docker` | docker binary |
 | `DOCKER_LEASE_NOTIFY_BIN` | `~/.local/bin/docker-lease-notifier.app/...` | notifier executable |
 
