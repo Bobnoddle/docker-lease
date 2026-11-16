@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/icon/master.png" width="200" alt="a pixelated viking longship in Docker blue"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/icon/logo-dark.png"><img src="assets/icon/logo-light.png" width="200" alt="docker-lease logo: a whale silhouette carrying pixel cargo blocks"></picture></p>
 
 <h1 align="center">docker-lease</h1>
 
@@ -185,7 +185,8 @@ Each stop and delete is reported once. Two paths:
 
 1. **`docker-lease-notifier.app`** (built by `notifier/build.sh`): a tiny
    `LSUIElement` bundle that posts through `UserNotifications`, so the banner
-   carries the icon in `assets/icon/`.
+   carries the icon in `assets/icon/`. The bundle ships the light-background
+   mark, because macOS draws notification icons on a light tile.
 2. **`osascript` fallback**: always built in, generic icon, used whenever the
    bundle is missing, unsigned, or exits non-zero.
 
