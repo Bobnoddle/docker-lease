@@ -8,32 +8,70 @@
 
 ---
 
+## Quick start
+
+1. Clone it.
+   ```sh
+   git clone https://github.com/Bobnoddle/docker-lease && cd docker-lease
+   ```
+2. Read `bin/docker-lease.sh`. It is one file, and every decision it makes is in plain sight.
+3. Install it.
+   ```sh
+   ./install.sh
+   ```
+   It copies the script to `~/.local/bin`, builds the optional notifier, appends an env block to your shell profile, and loads a LaunchAgent named `io.github.bobnoddle.docker-lease.reaper`. No sudo, and nothing in Docker is stopped, started or removed.
+
+Check it worked:
+
+```sh
+~/.local/bin/docker-lease.sh status
+```
+
+```
+PROJECT              OWNER    RUN     PIN  IDLE     SINCE    STATE
+----------------------------------------------------------------------------
+quark                USER     yes     no   -        -        user (never reaped)
+```
+
+The example uses the full path; `~/.local/bin` is on `PATH` in most shells, so
+`docker-lease.sh` works too.
+
+Undo: `./uninstall.sh` removes the agent, the script, the notifier and the env block. Add `--purge` to also delete `~/.docker-leases`.
+
+## What it does
+
+- Enumerates compose projects from the `com.docker.compose.project` and `working_dir` labels, so containers started by hand with `docker run` are ignored.
+- `AGENT` stacks idle for 30 minutes are stopped, with the restart policy stripped first so they stay stopped; `docker start` brings them back. After 24 hours their containers are deleted.
+- Your `~/Projects` tree, pinned projects and every volume are never deleted.
+- A launchd agent runs a pass every 10 minutes. There is no daemon.
+
+Four independent activity signals must all agree that a stack is idle before it is touched. Details in [How it decides](#how-it-decides-what-to-reap).
+
+## Requirements
+
+- macOS 13 or newer (Ventura+); tested on macOS 26.
+- The bash 3.2 that ships with macOS, nothing newer.
+- The Docker CLI with a reachable daemon, plus `lsof`; Docker Desktop, OrbStack and Colima all work. The notifier is optional: without the Swift toolchain you get `osascript` notifications instead.
+
 ## The Problem
 
 Agent harnesses and CI runners create a workspace, run `docker compose up -d`,
-finish the task, and delete the workspace. Nothing runs `compose down`. The
+finish the task and delete the workspace. Nothing runs `compose down`, and the
 scaffolded services usually carry `restart: always`, so the stack outlives the
-workspace, the editor session, and often the reboot you hoped would clear it.
+workspace, the editor session and often the reboot you hoped would clear it.
 
-The result is a steady accumulation of containers nobody claims, ports held by
-services nothing can reach, and disk and memory use ballooning the Docker VM
-until the whole machine feels slow.
-
-The hard part is that the obvious fixes are asymmetric. A stack from a finished
-task keeps running for days, while any rule that looks safe on paper will
-happily tear down the database your six-hour migration is still using four
-minutes after you deleted the workspace that started it. One of those failure
-modes wastes resources; the other destroys work.
-
-`docker-lease` decides on ownership and observed activity, not on age.
+The obvious fixes are asymmetric. A stack from a finished task keeps running for
+days, while any rule that looks safe on paper will tear down the database your
+six-hour migration is still using four minutes after you deleted the workspace
+that started it. One of those failure modes wastes resources, the other destroys
+work. `docker-lease` decides on ownership and observed activity, not age.
 
 ## How it Decides What to Reap
 
 Every pass asks Docker which compose projects exist and where their compose
 file lives (`com.docker.compose.project.working_dir`). That label is the only
 ownership signal that survives a Docker Desktop restart, and it is what the
-classes below are built on. Containers started by hand with `docker run` carry
-no compose project and are ignored entirely.
+classes below are built on.
 
 | Class | Condition | What happens |
 |---|---|---|
@@ -46,6 +84,16 @@ no compose project and are ignored entirely.
 `AGENT` is the only class that decays on a timer, and it stays empty until you
 point it at your own workspace tree. With `DOCKER_LEASE_AGENT_ROOT` unset, no
 stack is ever stopped or deleted on a timer. That is the safe default, not a bug.
+
+```sh
+# ~/.zshrc: any harness or CI runner that makes per-task worktrees works here.
+# This path is only an example.
+export DOCKER_LEASE_AGENT_ROOT="$HOME/.local/share/opencode/worktree"
+```
+
+Confirm with `docker-lease.sh status`: the stacks under that tree show `AGENT`,
+and everything else stays `USER` or `UNKNOWN`, including plain git worktrees
+under `~/work/`.
 
 Defaults on a decayed `AGENT` stack:
 
@@ -79,85 +127,16 @@ one of them vetoes the stop and re-stamps the activity file:
   volumes and prints `docker system df`; nothing in the reap path removes one.
   Emptying a volume is unrecoverable, so it stays a human decision.
 - **Restart policies are stripped before anything stops.** The `restart: always`
-  that resurrects stacks at the next Docker Desktop launch is cleared first,
-  so a stopped stack stays stopped.
-- **Stop, then delete much later.** The default is a reversible `docker stop`
-  after 30 idle minutes and deletion only after 24 hours. `ORPHAN` deletion is
-  additionally gated behind a grace period of 600 seconds and must be seen in
-  two separate passes, so a workspace being created right now is never torn out
-  from under its agent.
+  that resurrects stacks at the next Docker Desktop launch is cleared first.
+- **Orphans get a grace period.** An `ORPHAN` must be seen in two separate
+  passes at least 600 seconds apart, so a workspace being created right now is
+  never torn out from under its agent.
 - **Unclassifiable stacks are left alone.** No compose label, or a working
   directory outside both roots, produces a log note rather than an action.
 - **Notifications fail softly.** Each stop and delete is announced through the
   optional notifier bundle; if that fails, an `osascript` fallback runs, and if
   both fail the error is logged and the reap continues. The message is passed
   as an argument, never interpolated into AppleScript source.
-
-### How it compares
-
-- `docker system prune` only sees what Docker already considers unused:
-  stopped containers and dangling images. It cannot see a running-but-idle stack
-  at all, and it will remove stopped containers you were deliberately keeping.
-- Age-based reaper scripts measure one thing: how long a container has existed.
-  That single timestamp cannot distinguish a stack abandoned last week from the
-  one a six-hour migration is hammering right now.
-- `docker-lease` combines an ownership class with the four-signal veto above, so
-  the decision is "nobody owns this and nothing is using it" rather than "it is
-  old".
-
-## Install
-
-```sh
-git clone https://github.com/Bobnoddle/docker-lease.git
-cd docker-lease
-./install.sh
-```
-
-`install.sh` copies the script to `~/.local/bin`, builds the optional notifier,
-appends a documented env block to your shell profile, and loads the launchd
-agent. It stops nothing in Docker.
-
-Requirements:
-
-- macOS 13 or newer (Ventura+); tested on macOS 26
-- `bash` 3.2; the system bash is fine, nothing newer is required
-- Docker Desktop, OrbStack or Colima with a reachable daemon, plus `lsof`
-- **Optional:** the Swift toolchain (`xcode-select --install`), only to build
-  the notification helper. Without it you get plain `osascript` notifications.
-
-Run it read-only first:
-
-```sh
-~/.local/bin/docker-lease.sh status          # what it sees and how it classifies it
-~/.local/bin/docker-lease.sh reap --dry-run  # exactly what the next pass would do
-```
-
-`~/.local/bin` is on `PATH` for most setups; add it yourself if it is not.
-launchd re-runs the agent every 600 seconds (`StartInterval`), and `RunAtLoad`
-is false, so a login does not immediately trigger a pass.
-
-### Uninstall
-
-```sh
-./uninstall.sh            # keeps ~/.docker-leases history
-./uninstall.sh --purge    # and the state directory
-```
-
-## Set up your agent root
-
-`AGENT` classification is opt-in so the tool never claims a directory tree it
-does not own. Point it at the parent of your throwaway workspaces:
-
-```sh
-# ~/.zshrc
-export DOCKER_LEASE_AGENT_ROOT="$HOME/.local/share/opencode/worktree"   # example
-```
-
-That path is only an example. Any harness or CI runner that creates per-task
-worktrees works the same way, including plain git worktrees under `~/work/` or a
-scratch directory. Whatever you choose, confirm it with
-`docker-lease.sh status`: the stacks under that tree should show `AGENT`, and
-everything else should stay `USER` or `UNKNOWN`.
 
 ## Configuration
 
@@ -178,21 +157,21 @@ Because launchd captures the environment at load time, re-run
 `docker-lease.sh install` after exporting a new variable, or export it inside
 the plist.
 
-### Pinning
+## Pinning
 
 ```sh
-docker-lease.sh pin my-project     # never reaped, any class
-docker-lease.sh unpin my-project
+~/.local/bin/docker-lease.sh pin my-project     # never reaped, any class
+~/.local/bin/docker-lease.sh unpin my-project
 ```
 
 Pins are for the exception no signal captures: a stack you deliberately leave
 running for a week. If you find yourself pinning routinely, the stop window is
 shorter than the way you work.
 
-### Heartbeats
+## Heartbeats
 
 ```sh
-docker-lease.sh heartbeat my-project   # call from a long-running job
+~/.local/bin/docker-lease.sh heartbeat my-project   # call from a long-running job
 ```
 
 A heartbeat writes a timestamp only; it does not touch Docker and it requires a
@@ -232,6 +211,18 @@ Rebuild the bundle any time (icon included):
 `build.sh` compiles `arm64` and `x86_64` slices when the SDK supports both, lipos
 them, ad-hoc signs, and prints the resulting architectures. If one slice cannot
 be built it ships the other and says so.
+
+## How it compares
+
+- `docker system prune` only sees what Docker already considers unused:
+  stopped containers and dangling images. It cannot see a running-but-idle stack
+  at all, and it will remove stopped containers you were deliberately keeping.
+- Age-based reaper scripts measure one thing: how long a container has existed.
+  That single timestamp cannot distinguish a stack abandoned last week from the
+  one a six-hour migration is hammering right now.
+- `docker-lease` combines an ownership class with the four-signal veto above, so
+  the decision is "nobody owns this and nothing is using it" rather than "it is
+  old".
 
 ## Repo layout
 
