@@ -1,14 +1,12 @@
-<p align="center"><img src="assets/icon/master.png" width="128" alt="docker-lease logo — a pixelated viking longship in Docker blue"></p>
+<p align="center"><img src="assets/icon/master.png" width="200" alt="a pixelated viking longship in Docker blue"></p>
 
-# docker-lease
+<h1 align="center">docker-lease</h1>
 
-A lightweight macOS script that cleans up orphaned Docker Compose stacks left
-behind by throwaway agent workspaces and CI runs—without touching anything
-you're actually using.
+<p align="center">A lightweight macOS script that cleans up orphaned Docker Compose stacks left behind by throwaway agent workspaces and CI runs, without touching anything you're actually using.</p>
 
-No runtime dependencies beyond `docker` and `lsof`. It runs on the bash 3.2 that
-ships with macOS, needs macOS 13 or newer, and is a single file you can read
-before you trust it.
+<p align="center"><sub>No runtime dependencies beyond <code>docker</code> and <code>lsof</code>. bash 3.2, macOS 13 or newer, a single file you can read before you trust it.</sub></p>
+
+---
 
 ## The Problem
 
@@ -47,13 +45,13 @@ no compose project and are ignored entirely.
 
 `AGENT` is the only class that decays on a timer, and it stays empty until you
 point it at your own workspace tree. With `DOCKER_LEASE_AGENT_ROOT` unset, no
-stack is ever stopped or deleted on a timer — the safe default, not a bug.
+stack is ever stopped or deleted on a timer. That is the safe default, not a bug.
 
 Defaults on a decayed `AGENT` stack:
 
 | Idle for | Action |
 |---|---|
-| 30 minutes (`DOCKER_STOP_MIN`) | containers stopped, `restart:` policy cleared — reversible with `docker start` |
+| 30 minutes (`DOCKER_STOP_MIN`) | containers stopped, `restart:` policy cleared, reversible with `docker start` |
 | 24 hours (`DOCKER_DELETE_HOURS`) | containers deleted |
 
 ### The four veto signals
@@ -66,7 +64,7 @@ one of them vetoes the stop and re-stamps the activity file:
    project. The signal counts only while the lease is fresher than the stop
    window, so a stale lease cannot pin a stack open forever.
 2. **File mtimes.** Any file under the compose working directory modified within
-   the stop window — editors, test runners, `git` operations.
+   the stop window: editors, test runners, `git` operations.
 3. **Network byte deltas.** `NetIO` is sampled each pass and compared with the
    previous sample; growth above **1024 bytes** counts as activity. Bytes, not
    CPU: CPU jitters on an idle container and would make everything look busy.
@@ -97,7 +95,7 @@ one of them vetoes the stop and re-stamps the activity file:
 
 ### How it compares
 
-- `docker system prune` only sees what Docker already considers unused —
+- `docker system prune` only sees what Docker already considers unused:
   stopped containers and dangling images. It cannot see a running-but-idle stack
   at all, and it will remove stopped containers you were deliberately keeping.
 - Age-based reaper scripts measure one thing: how long a container has existed.
@@ -122,7 +120,7 @@ agent. It stops nothing in Docker.
 Requirements:
 
 - macOS 13 or newer (Ventura+); tested on macOS 26
-- `bash` 3.2 — the system bash is fine, nothing newer is required
+- `bash` 3.2; the system bash is fine, nothing newer is required
 - Docker Desktop, OrbStack or Colima with a reachable daemon, plus `lsof`
 - **Optional:** the Swift toolchain (`xcode-select --install`), only to build
   the notification helper. Without it you get plain `osascript` notifications.
@@ -155,7 +153,7 @@ does not own. Point it at the parent of your throwaway workspaces:
 export DOCKER_LEASE_AGENT_ROOT="$HOME/.local/share/opencode/worktree"   # example
 ```
 
-That path is only an example — any harness or CI runner that creates per-task
+That path is only an example. Any harness or CI runner that creates per-task
 worktrees works the same way, including plain git worktrees under `~/work/` or a
 scratch directory. Whatever you choose, confirm it with
 `docker-lease.sh status`: the stacks under that tree should show `AGENT`, and
@@ -187,7 +185,7 @@ docker-lease.sh pin my-project     # never reaped, any class
 docker-lease.sh unpin my-project
 ```
 
-Pins are for the exception no signal captures — a stack you deliberately leave
+Pins are for the exception no signal captures: a stack you deliberately leave
 running for a week. If you find yourself pinning routinely, the stop window is
 shorter than the way you work.
 
@@ -204,10 +202,10 @@ reachable daemon so a dead daemon never looks like activity.
 
 Each stop and delete is reported once. Two paths:
 
-1. **`docker-lease-notifier.app`** (built by `notifier/build.sh`) — a tiny
+1. **`docker-lease-notifier.app`** (built by `notifier/build.sh`): a tiny
    `LSUIElement` bundle that posts through `UserNotifications`, so the banner
    carries the icon in `assets/icon/`.
-2. **`osascript` fallback** — always built in, generic icon, used whenever the
+2. **`osascript` fallback**: always built in, generic icon, used whenever the
    bundle is missing, unsigned, or exits non-zero.
 
 The helper exits non-zero when the system has not authorized alerts, which is
@@ -220,7 +218,7 @@ icon:
 
 Exit codes: `0` accepted, `1` authorization denied, `2` no message, `3` not
 authorized or alert style off, `4` add failed, `5` request failed. **Exit 0 means
-the system accepted the request, not that you saw it** — Focus modes accept and
+the system accepted the request, not that you saw it.** Focus modes accept and
 present nothing. The script never treats a successful exit as proof of a visible
 banner, and logs both paths failing.
 
@@ -248,5 +246,5 @@ uninstall.sh            mirrors install.sh
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Icon provenance and its redistribution caveat are
+MIT. See [LICENSE](LICENSE). Icon provenance and its redistribution caveat are
 in [NOTICE.md](NOTICE.md).
