@@ -228,5 +228,4 @@ be built it ships the other and says so.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Icon provenance and its redistribution caveat are
-in [NOTICE.md](NOTICE.md).
+MIT. See [LICENSE](LICENSE). Icon provenance is noted in [NOTICE.md](NOTICE.md).

@@ -1,28 +1,16 @@
 # NOTICE
 
-## Icon artwork — redistribution caveat
+## Icon artwork
 
-`assets/icon/master.png` (a stylised Viking-ship logo) was generated with
-**Google Gemini**, an AI image generator, and is included here for use with the
-docker-lease notifier.
+`assets/icon/master.png` is original artwork made for this project and is the
+only icon asset the repository ships. No third-party icon set or stock image is
+included.
 
-It is **not** covered by the MIT license that applies to the source code. The
-copyright status of AI-generated images is unsettled and depends on the terms of
-the generator that produced it:
-
-- Google's terms for Gemini and related generative media have changed repeatedly
-  and restrict some commercial and redistribution uses.
-- Outputs may also reproduce elements of training data, which can carry their
-  own rights.
-- This notice is not legal advice.
-
-**Before publishing, redistributing, or using this image commercially, verify
-Google's current Terms of Service / Generative AI Prohibited Use Policy yourself.**
-
-If they do not permit your intended use, replace `assets/icon/master.png` with
-artwork you own or that is licensed for your use (any square or non-square PNG
-works; `notifier/build.sh` centres it on a transparent canvas), and keep the rest
-of the project unchanged.
+The artwork is not covered by the MIT license that applies to the source code
+(see [LICENSE](LICENSE)). It identifies this project, so it travels with it; if
+you fork and rebrand, replace `assets/icon/master.png` with your own image. Any
+PNG works, square or not, and `notifier/build.sh` centres it on a transparent
+canvas.
 
 ## Third-party names
 
