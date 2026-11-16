@@ -157,7 +157,9 @@ Because launchd captures the environment at load time, re-run
 `docker-lease.sh install` after exporting a new variable, or export it inside
 the plist.
 
-## Pinning
+## Controls
+
+### Pinning
 
 ```sh
 ~/.local/bin/docker-lease.sh pin my-project     # never reaped, any class
@@ -168,7 +170,7 @@ Pins are for the exception no signal captures: a stack you deliberately leave
 running for a week. If you find yourself pinning routinely, the stop window is
 shorter than the way you work.
 
-## Heartbeats
+### Heartbeats
 
 ```sh
 ~/.local/bin/docker-lease.sh heartbeat my-project   # call from a long-running job
@@ -223,17 +225,6 @@ be built it ships the other and says so.
 - `docker-lease` combines an ownership class with the four-signal veto above, so
   the decision is "nobody owns this and nothing is using it" rather than "it is
   old".
-
-## Repo layout
-
-```
-bin/docker-lease.sh     the reaper (single file, uses docker and lsof)
-notifier/Notify.swift   notification helper source
-notifier/build.sh       rebuilds the .app bundle from scratch (icons + signing)
-assets/icon/master.png  icon artwork (see NOTICE.md before redistributing)
-install.sh              script + notifier + env block + launchd agent
-uninstall.sh            mirrors install.sh
-```
 
 ## License
 
