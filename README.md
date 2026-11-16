@@ -4,6 +4,8 @@
 
 <p align="center">A lightweight macOS script that cleans up orphaned Docker Compose stacks left behind by throwaway agent workspaces and CI runs, without touching anything you're actually using.</p>
 
+<p align="center"><a href="https://github.com/Bobnoddle/docker-lease/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a> <a href="https://github.com/Bobnoddle/docker-lease/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/Bobnoddle/docker-lease" alt="Release: v1.0.0"></a> <a href="https://github.com/Bobnoddle/docker-lease"><img src="https://img.shields.io/badge/platform-macOS%2013-lightgrey.svg" alt="Platform: macOS 13"></a></p>
+
 <p align="center"><sub>No runtime dependencies beyond <code>docker</code> and <code>lsof</code>. bash 3.2, macOS 13 or newer, a single file you can read before you trust it.</sub></p>
 
 ---
