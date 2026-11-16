@@ -1,5 +1,5 @@
 #!/bin/bash
-# install.sh — install docker-lease for the current user.
+# install.sh: install docker-lease for the current user.
 #
 # What it does, in order:
 #   1. copies bin/docker-lease.sh into the bin directory
@@ -61,7 +61,7 @@ say "installed script: $BIN_DIR/docker-lease.sh"
 # --- 2. notifier (optional) ------------------------------------------------
 if [ "$WANT_NOTIFIER" -eq 1 ]; then
   if command -v swiftc >/dev/null 2>&1; then
-    OUT="$BIN_DIR" ICON_SRC="$HERE/assets/icon/master.png" \
+    OUT="$BIN_DIR" ICON_SRC="$HERE/assets/icon/logo-light.png" \
       NOTIFIER_BUNDLE_ID="$NOTIFIER_BUNDLE_ID" \
       bash "$HERE/notifier/build.sh" || warn "notifier build failed; notifications will use osascript"
   else

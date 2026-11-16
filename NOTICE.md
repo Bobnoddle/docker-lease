@@ -3,16 +3,14 @@
 ## Icon artwork
 
 The mark ships as two variants of the same artwork: `assets/icon/logo-dark.png`
-(white hull, for dark backgrounds), `assets/icon/logo-light.png` (near-black
-hull, for light backgrounds), and `assets/icon/master.png`, a copy of the light
-variant that `notifier/build.sh` uses by default. No third-party icon set or
-stock image is included.
+(white hull, for dark backgrounds) and `assets/icon/logo-light.png` (near-black
+hull, for light backgrounds, and the source `notifier/build.sh` uses by
+default). No third-party icon set or stock image is included.
 
 The artwork is not covered by the MIT license that applies to the source code
 (see [LICENSE](LICENSE)). It identifies this project, so it travels with it; if
-you fork and rebrand, replace all three files with your own image. Any PNG
-works, square or not, and `notifier/build.sh` centres it on a transparent
-canvas.
+you fork and rebrand, replace both files with your own image. Any PNG works,
+square or not, and `notifier/build.sh` centres it on a transparent canvas.
 
 ## Third-party names
 

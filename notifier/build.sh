@@ -1,5 +1,5 @@
 #!/bin/bash
-# build.sh — regenerate docker-lease-notifier.app from scratch.
+# build.sh: regenerate docker-lease-notifier.app from scratch.
 #
 # Produces a self-contained, ad-hoc-signed .app bundle whose only job is to post
 # one notification per invocation (see Notify.swift). Requires the Swift
@@ -8,7 +8,10 @@
 # Usage:
 #   ./build.sh                     # -> ~/.local/bin/docker-lease-notifier.app
 #   ./build.sh --out /tmp/out      # -> /tmp/out/docker-lease-notifier.app
-#   ./build.sh --icon path/to.png  # source artwork (default ../assets/icon/master.png)
+#   ./build.sh --icon path/to.png  # source artwork (default ../assets/icon/logo-light.png)
+#
+# --icon accepts any PNG, square or rectangular; it is centred on a transparent
+# canvas before the iconset is generated.
 #
 # Env:
 #   NOTIFIER_BUNDLE_ID   bundle identifier (default below)
@@ -32,7 +35,7 @@ EXEC_NAME="docker-lease-notify"
 MIN_MACOS="13.0"
 
 OUT="${OUT:-$HOME/.local/bin}"
-ICON_SRC="${ICON_SRC:-$HERE/../assets/icon/master.png}"
+ICON_SRC="${ICON_SRC:-$HERE/../assets/icon/logo-light.png}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
